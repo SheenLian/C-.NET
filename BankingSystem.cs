@@ -10,65 +10,55 @@ namespace ReadifyBank.Interfaces
     {
         static void Main(string[] args)
         {
-
-            //initializing..3 accounts 1 LN and 2 SV
-            IAccounts sheen1 = new IAccounts();
-            sheen1.accnum = "SV-000123";
-            sheen1.bal = 50000m;
-            sheen1.cname = "Sheen Lian";
-            sheen1.opday = new DateTime(2017, 1, 1);
-
-            IAccounts sheen2 = new IAccounts();
-            sheen2.accnum = "LN-000103";
-            sheen2.bal = 50000m;
-            sheen2.cname = "Sheen Lian";
-            sheen2.opday = new DateTime(2017, 1, 1);
-
-            IAccounts lily = new IAccounts();
-            lily.accnum = "LN-000121";
-            lily.bal = 50000m;
-            lily.cname = "Lily Shi";
-            lily.opday = new DateTime(2017, 1, 1);
-
-
-
+            
             // initializing a IReadfiybank object
             IReadifybank banking = new IReadifybank();
 
-            //add 3 accounts into bank list
-            banking.AccountList.Add(lily);
-            banking.AccountList.Add(sheen1);
-            banking.AccountList.Add(sheen2);
+            //open 3 account on 1/1/2017, 1 LN account and 2 SV accounts
+            Console.WriteLine("~~~~~~~~~~~~OPEN ACCOUNTS~~~~~~~~~~~\n");
+            DateTime open_day = new DateTime(2017, 1, 1);
+            IAccounts sheen_LN = banking.OpenHomeLoanAccount("Sheen Lian", open_day);
+            IAccounts sheen_SV = banking.OpenSavingsAccount("Sheen Lian", open_day);
+            IAccounts lily_SV = banking.OpenSavingsAccount("Lily Shi", open_day);
+            Console.WriteLine("\n\n");
 
+            //transaction 1: deposit 50000 dollars into each of these accounts
+            Console.WriteLine("~~~~~~~~~~~~DEPOSIR~~~~~~~~~~~~~~~~~\n");
+            banking.PerformDeposit(sheen_SV, 50000m, "Save for good use!", DateTime.Now);
+            banking.PerformDeposit(sheen_LN, 50000m, "Save for good use!", DateTime.Now);
+            banking.PerformDeposit(lily_SV, 50000m, "Save for good use!", DateTime.Now);
+            Console.WriteLine("\n\n");
+           
+            //check balance of thse accounts
+            Console.WriteLine("~~~~~~~~~~~~Chec balance~~~~~~~~~~~~\n");
+            banking.GetBalance(sheen_LN);
+            banking.GetBalance(sheen_SV);
+            banking.GetBalance(lily_SV);
+            Console.WriteLine("\n\n");
 
             //test calculate interest rate
+            Console.WriteLine("~~~~~~~~Calculate interest rate~~~~~~");
             DateTime todate = new DateTime(2020, 1, 1);
-            banking.CalculateInterestToDate(sheen1, todate);
-
-            //test open account
-            banking.OpenSavingsAccount("Lily Shi", DateTime.Now);//Try to open a not exist account, will show error
-            banking.OpenHomeLoanAccount("Sheen Lian", DateTime.Now);//Open a exist account
-
-
-            //transaction 1: deposit 10000 dollars into sheen1
-            Console.WriteLine(">>>Deposit<<<");
-            banking.PerformDeposit(sheen1, 10000m, "Save for good use!", DateTime.Now);
+            banking.CalculateInterestToDate(sheen_LN, todate);
+            Console.WriteLine("\n\n");
             
-            //transaction 2: withdrawal 10000 dollars from lily after some time
+
+            //transaction 2: withdrawal 10000 dollars from lily_SV after some time
             TimeSpan duration1 = new TimeSpan(888, 88, 88);
-            Console.WriteLine(">>>Withdrawal<<<");
-            banking.PerformWithdrawal(lily, 10000m, "Withdrawal for good use!", DateTime.Now.Add(duration1));
-            
+            Console.WriteLine("~~~~~~~~~~~~Withdrawal~~~~~~~~~~~~~~~");
+            banking.PerformWithdrawal(lily_SV, 10000m, "Withdrawal for good use!", DateTime.Now.Add(duration1));
+            Console.WriteLine("\n\n");
 
-            //transaction 3: transfer 6666 dollars from sheen1 to lily after some time 
 
-            //THIS WILL NOT WORK AND SHOW WARNING!!!:because sheen1 and lily are different type of accounts 
-            //Just test the warning giving fart of the code:
+            //transaction 3: transfer 6666 dollars from sheen1 to lily after some time  
             TimeSpan duration2 = new TimeSpan(666, 66, 66);
-            Console.WriteLine(">>>Transfer<<<");
-            banking.PerformTransfer(sheen1, lily, 6666m, "Giving is loving!", DateTime.Now.Add(duration2));
+            Console.WriteLine("~~~~~~~~~~~~~~~~Transfer~~~~~~~~~~~~~");
+            //THIS WILL NOT WORK AND SHOW WARNING!!!:because sheen1 and lily are different type of accounts 
+            //Just test the warning giving part of the code:
+            banking.PerformTransfer(sheen_LN, lily_SV, 6666m, "Giving is loving!", DateTime.Now.Add(duration2));
             //now try again from sheen2
-            banking.PerformTransfer(sheen2, lily, 6666m, "Giving is loving!", DateTime.Now.Add(duration2));
+            banking.PerformTransfer(sheen_SV, lily_SV, 6666m, "Giving is loving!", DateTime.Now.Add(duration2));
+            Console.WriteLine("\n\n");
 
             //Do some different operation on sheen2 
             ///<summary>
@@ -76,14 +66,14 @@ namespace ReadifyBank.Interfaces
             ///so the output in application console will be messy
             ///if you want to see the neat version of this, plz unquote the code below which 
             ///are actully doing the same thing without applying thread
-            Task tran1 = new Task(() => banking.PerformDeposit(sheen2, 10000m, "Save for good use!", DateTime.Now));
-            Task tran2 = new Task(() => banking.PerformDeposit(sheen2, 11111m, "Save for good use!", DateTime.Now));
-            Task tran3 = new Task(() => banking.PerformDeposit(sheen2, 12222m, "Save for good use!", DateTime.Now));
-            Task tran4 = new Task(() => banking.PerformDeposit(sheen2, 111.11m, "Save for good use!", DateTime.Now));
-            Task tran5 = new Task(() => banking.PerformTransfer(sheen2, lily, 222.22m, "Giving is loving!", DateTime.Now.Add(duration2)));
-            Task tran6 = new Task(() => banking.PerformWithdrawal(sheen2, 333.33m, "Withdrawal for good use!", DateTime.Now.Add(duration1)));
-            Task tran7 = new Task(() => banking.PerformDeposit(sheen2, 444.44m, "Save for good use!", DateTime.Now));
-            Task tran8 = new Task(() => banking.PerformTransfer(sheen2, lily, 555.55m, "Giving is loving!", DateTime.Now.Add(duration2)));
+            Task tran1 = new Task(() => banking.PerformDeposit(sheen_SV, 10000m, "Save for good use!", DateTime.Now));
+            Task tran2 = new Task(() => banking.PerformDeposit(sheen_SV, 11111m, "Save for good use!", DateTime.Now));
+            Task tran3 = new Task(() => banking.PerformDeposit(sheen_SV, 12222m, "Save for good use!", DateTime.Now));
+            Task tran4 = new Task(() => banking.PerformDeposit(sheen_SV, 111.11m, "Save for good use!", DateTime.Now));
+            Task tran5 = new Task(() => banking.PerformTransfer(sheen_SV, lily_SV, 222.22m, "Giving is loving!", DateTime.Now.Add(duration2)));
+            Task tran6 = new Task(() => banking.PerformWithdrawal(sheen_SV, 333.33m, "Withdrawal for good use!", DateTime.Now.Add(duration1)));
+            Task tran7 = new Task(() => banking.PerformDeposit(sheen_SV, 444.44m, "Save for good use!", DateTime.Now));
+            Task tran8 = new Task(() => banking.PerformTransfer(sheen_SV, lily_SV, 555.55m, "Giving is loving!", DateTime.Now.Add(duration2)));
             tran1.Start();
             tran2.Start();
             tran3.Start();
@@ -94,34 +84,40 @@ namespace ReadifyBank.Interfaces
             tran8.Start();
             //neat version
             /*
-            banking.PerformDeposit(sheen2, 10000m, "Save for good use!", DateTime.Now);
-            banking.PerformDeposit(sheen2, 10001m, "Save for good use!", DateTime.Now);
-            banking.PerformDeposit(sheen2, 10002m, "Save for good use!", DateTime.Now);
-            banking.PerformDeposit(sheen2, 111.11m, "Save for good use!", DateTime.Now);
-            banking.PerformTransfer(sheen2, lily, 222.22m, "Giving is loving!", DateTime.Now.Add(duration2));
-            banking.PerformWithdrawal(sheen2, 333.33m, "Withdrawal for good use!", DateTime.Now.Add(duration1));
-            banking.PerformDeposit(sheen2, 444.44m, "Save for good use!", DateTime.Now);
-            banking.PerformTransfer(sheen2, lily, 555.55m, "Giving is loving!", DateTime.Now.Add(duration2));
+            banking.PerformDeposit(sheen_SV, 10000m, "Save for good use!", DateTime.Now);
+            banking.PerformDeposit(sheen_SV, 10001m, "Save for good use!", DateTime.Now);
+            banking.PerformDeposit(sheen_SV, 10002m, "Save for good use!", DateTime.Now);
+            banking.PerformDeposit(sheen_SV, 111.11m, "Save for good use!", DateTime.Now);
+            banking.PerformTransfer(sheen_SV, lily_SV, 222.22m, "Giving is loving!", DateTime.Now.Add(duration2));
+            banking.PerformWithdrawal(sheen_SV, 333.33m, "Withdrawal for good use!", DateTime.Now.Add(duration1));
+            banking.PerformDeposit(sheen_SV, 444.44m, "Save for good use!", DateTime.Now);
+            banking.PerformTransfer(sheen_SV, lily_SV, 555.55m, "Giving is loving!", DateTime.Now.Add(duration2));
             */
 
 
-            //try get last five transaction
             
-            IEnumerable<statementrow> a = banking.GetMiniStatement(sheen2);
-            Console.WriteLine("~~~~Get last five~~~~~~");
+
+            //try get last five transaction
+            IEnumerable<statementrow> a = banking.GetMiniStatement(sheen_SV);
+            Console.WriteLine("~~~~~~~~Get last five~~~~~~~~~~");
             foreach (var x in a) {
                 Console.WriteLine(x.Amount);
             }
+            Console.WriteLine("\n\n");
             //try close transaction
-            IEnumerable<statementrow> b = banking.CloseAccount(sheen2,DateTime.Now);
-            Console.WriteLine("~~~~Close account~~~~~~");
+            IEnumerable<statementrow> b = banking.CloseAccount(sheen_SV,DateTime.Now);
+            Console.WriteLine("~~~~~~~Close account~~~~~~~~~~~");
             foreach (var x in b)
             {
                 Console.WriteLine(x.Amount);
             }
+            Console.WriteLine("\n\n");
             //*****FOR THIS TRY GET TRANSACATION PART, SINCE THE RETURN TYPE IS A ENUMERABLE<IStatmentRow> TYPE,
             //*****SO TO PROVE IT IS WORKING, I PRINT OUT THE AMOUNT OF EACH TRANSACTION
             //time order issue explained in the method define
+
+
+
         }
     }
 
@@ -264,12 +260,12 @@ namespace ReadifyBank.Interfaces
         public decimal CalculateInterestToDate(IAccounts account, DateTimeOffset toDate)
         {
             double addvalue;
-            double year_diff, month_diff;
+            double year_diff = 0, month_diff;
             double origin = (double)account.Balance;
             double money = origin;
             if (account.AccountNumber.Contains("LN"))
             {
-                year_diff = toDate.Subtract(account.OpenedDate).TotalDays / 365;
+                year_diff = toDate.Subtract(account.OpenedDate).TotalDays/365.00;
                 for (int i = 0; i < Math.Round(year_diff); i++)
                 {
                     money = money * (1 + 0.0399);
@@ -286,7 +282,7 @@ namespace ReadifyBank.Interfaces
                 addvalue = money - origin;
             }
             Console.WriteLine("*******************************");
-            Console.WriteLine();
+            Console.WriteLine(year_diff);
             Console.WriteLine(">Your interest rate is: " + addvalue);
             Console.WriteLine();
             Console.WriteLine("*******************************");
@@ -296,74 +292,88 @@ namespace ReadifyBank.Interfaces
         // check balace of the account
         public decimal GetBalance(IAccounts account)
         {
+            Console.WriteLine(account.AccountNumber + " => Bal : " + account.Balance+"\n");
             return account.Balance;
         }
 
         // open a home loan account
-        public IAccount OpenHomeLoanAccount(string customerName, DateTimeOffset openDate)
+        public IAccounts OpenHomeLoanAccount(string customerName, DateTimeOffset openDate)
         {
             IAccounts openedaccount = new IAccounts();
-            bool exist = false; // test flag for existance of account
-            foreach (IAccounts x in accountList)
+            openedaccount.cname = customerName;
+            openedaccount.opday = openDate;
+            Random rd = new Random();
+            bool Num_taken = true;
+            int counter = 0;
+            while (Num_taken)
             {
-                // make sure open the LN account under same name
-                if (x.CustomerName == customerName && x.AccountNumber.Contains("LN"))
+                int r = rd.Next(1, 999999);
+                openedaccount.accnum = "LN-" + r.ToString("D6");
+                for (counter =0; counter < accountList.Count; counter++)
                 {
-                    openedaccount = x;
-                    exist = true;//set to true if account exists
+                    
+                    if (accountList[counter].AccountNumber == openedaccount.AccountNumber)
+                    {
+                        
+                        break;
+                    }
                 }
+                if (counter == accountList.Count)
+                {
+                    Num_taken = false;
+                }
+                
             }
-            if (exist)
-            {
-                Console.WriteLine();
-                Console.WriteLine(">Openning account: " + customerName);
-                Console.WriteLine(">Account Number: " + openedaccount.AccountNumber);
-                Console.WriteLine(">Balance: " + openedaccount.Balance);
-                Console.WriteLine(">Open date: " + openDate);
-                Console.WriteLine();
-                Console.WriteLine("*******************************");
-            }
-            else
-            {
-                Console.WriteLine(">Error: Account does not exist!");
-                Console.WriteLine();
-                Console.WriteLine("*******************************");
-            }
+
+
+            Console.WriteLine();
+            Console.WriteLine(">Openning account: " + customerName);
+            Console.WriteLine(">Account Number: " + openedaccount.AccountNumber);
+            Console.WriteLine(">Open date: " + openDate);
+            Console.WriteLine();
+            Console.WriteLine("*******************************");
+
+            this.AccountList.Add(openedaccount);
+            
             return openedaccount;
 
         }
 
         // open a saving account
-        public IAccount OpenSavingsAccount(string customerName, DateTimeOffset openDate)
+        public IAccounts OpenSavingsAccount(string customerName, DateTimeOffset openDate)
         {
             IAccounts openedaccount = new IAccounts();
-            bool exist = false; // test flag for existance of account
-            foreach (IAccounts x in accountList)
+            openedaccount.cname = customerName;
+            openedaccount.opday = openDate;
+            Random rd = new Random();
+            bool Num_taken = true;
+            int counter;
+            while (Num_taken)
             {
-                if (x.CustomerName == customerName && x.AccountNumber.Contains("SV"))
+                int r = rd.Next(1, 999999);
+                openedaccount.accnum = "SV-" + r.ToString("D6");
+                for (counter = 0; counter < accountList.Count; counter++)
                 {
-                    openedaccount = x;
-                    exist = true;//set to true if account exists
+                    if (accountList[counter].AccountNumber == openedaccount.AccountNumber)
+                    {
+                        break;
+                    }
                 }
+                if (counter == accountList.Count)
+                {
+                    Num_taken = false;
+                }
+
             }
 
-            if (exist)
-            {
-                Console.WriteLine();
-                Console.WriteLine(">Openning account: " + customerName);
-                Console.WriteLine(">Account Number: " + openedaccount.AccountNumber);
-                Console.WriteLine(">Balance: " + openedaccount.Balance);
-                Console.WriteLine(">Open date: " + openDate);
-                Console.WriteLine();
-                Console.WriteLine("*******************************");
-            }
-            else
-            {
-                Console.WriteLine(">Error: Account does not exist!");
-                Console.WriteLine();
-                Console.WriteLine("*******************************");
-            }
 
+            Console.WriteLine();
+            Console.WriteLine(">Openning account: " + customerName);
+            Console.WriteLine(">Account Number: " + openedaccount.AccountNumber);
+            Console.WriteLine(">Open date: " + openDate);
+            Console.WriteLine();
+            Console.WriteLine("*******************************");
+            this.AccountList.Add(openedaccount);
             return openedaccount;
         }
 
@@ -522,8 +532,8 @@ namespace ReadifyBank.Interfaces
     {
         List<IAccounts> AccountList { get; }
         List<statementrow> TransactionLog { get; }
-        IAccount OpenHomeLoanAccount(string customerName, DateTimeOffset openDate);
-        IAccount OpenSavingsAccount(string customerName, DateTimeOffset openDate);
+        IAccounts OpenHomeLoanAccount(string customerName, DateTimeOffset openDate);
+        IAccounts OpenSavingsAccount(string customerName, DateTimeOffset openDate);
         void PerformDeposit(IAccounts account, decimal amount, string description, DateTimeOffset depositDate);
         void PerformWithdrawal(IAccounts account, decimal amount, string description, DateTimeOffset withdrawalDate);
         void PerformTransfer(IAccounts from, IAccounts to, decimal amount, string description, DateTimeOffset transferDate);
